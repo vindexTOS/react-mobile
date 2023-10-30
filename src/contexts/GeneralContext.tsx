@@ -1,9 +1,11 @@
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer } from 'react'
+import Cookies from 'universal-cookie'
 
 type authState = {
   username: string
 
   password: string
+  token: string
 }
 
 type authAction = {
@@ -23,9 +25,12 @@ export const GeneralContextProvider = ({
 }: {
   children: React.ReactNode
 }) => {
+  const cookies = new Cookies()
+
   const initialauthState: authState = {
     username: '',
     password: '',
+    token: '',
   }
 
   const authRedcer = (state: authState, action: authAction) => {
@@ -34,12 +39,26 @@ export const GeneralContextProvider = ({
         return { ...state, username: state.username = action.payload }
       case 'password':
         return { ...state, password: state.password = action.payload }
+      case 'get-token':
+        return { ...state, token: state.token = action.payload }
       default:
         return state
     }
   }
+
   const [authState, authDispatch] = useReducer(authRedcer, initialauthState)
 
+  useEffect(() => {
+    const token = cookies.get('jwt')
+    console.log(token)
+    if (token) {
+      authDispatch({ type: 'get-token', payload: token })
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log(authState.token)
+  }, [console.log(authState.token)])
   return (
     <GeneralContext.Provider value={{ authState, authDispatch }}>
       {children}
