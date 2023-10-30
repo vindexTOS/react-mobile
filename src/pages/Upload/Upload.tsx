@@ -1,8 +1,11 @@
 import axios from 'axios'
 import React, { useReducer, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
+import { UseGeneralContext } from '../../contexts/GeneralContext'
+import { Navigate } from 'react-router-dom'
 
 function CameraComponent() {
+  const { authState } = UseGeneralContext()
   const initialState = {
     firstName: '',
     lastName: '',
@@ -74,73 +77,81 @@ function CameraComponent() {
         console.error('POST request error:', error)
       })
   }
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Capture Your Information</h1>
-      <h1 className="text-2xl font-bold mb-4">Take a face photo</h1>
-      <div className="mb-4">
-        {!state.photoBlob && (
-          <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
-        )}
-        {state.photoBlob ? (
-          <button
-            className="bg-blue-500 text-white p-2 rounded"
-            onClick={removePhotoBlob}
-          >
-            Re take photo
-          </button>
-        ) : (
-          <button
-            onClick={capture}
-            className="bg-blue-500 text-white p-2 rounded"
-          >
-            Capture
-          </button>
-        )}
-        {state.photoBlob && (
-          <img
-            src={URL.createObjectURL(state.photoBlob)}
-            alt="Captured"
-            className="mt-4"
+  if (authState.token) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Capture Your Information</h1>
+        <h1 className="text-2xl font-bold mb-4">Take a face photo</h1>
+        <div className="mb-4">
+          {!state.photoBlob && (
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+            />
+          )}
+          {state.photoBlob ? (
+            <button
+              className="bg-blue-500 text-white p-2 rounded"
+              onClick={removePhotoBlob}
+            >
+              Re take photo
+            </button>
+          ) : (
+            <button
+              onClick={capture}
+              className="bg-blue-500 text-white p-2 rounded"
+            >
+              Capture
+            </button>
+          )}
+          {state.photoBlob && (
+            <img
+              src={URL.createObjectURL(state.photoBlob)}
+              alt="Captured"
+              className="mt-4"
+            />
+          )}
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="First Name"
+            className="border rounded p-2 w-full"
           />
-        )}
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Last Name"
+            className="border rounded p-2 w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Address"
+            className="border rounded p-2 w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="number"
+            placeholder="Age"
+            className="border rounded p-2 w-full"
+          />
+        </div>
+        <button
+          onClick={handleSubmit}
+          className="bg-blue-500 text-white p-2 rounded"
+        >
+          Submit
+        </button>
       </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="First Name"
-          className="border rounded p-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Last Name"
-          className="border rounded p-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Address"
-          className="border rounded p-2 w-full"
-        />
-      </div>
-      <div className="mb-4">
-        <input
-          type="number"
-          placeholder="Age"
-          className="border rounded p-2 w-full"
-        />
-      </div>
-      <button
-        onClick={handleSubmit}
-        className="bg-blue-500 text-white p-2 rounded"
-      >
-        Submit
-      </button>
-    </div>
-  )
+    )
+  } else {
+    return <Navigate to="/" />
+  }
 }
 
 export default CameraComponent

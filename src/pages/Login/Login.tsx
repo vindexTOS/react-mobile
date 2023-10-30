@@ -2,30 +2,35 @@ import React from 'react'
 import { UseGeneralContext } from '../../contexts/GeneralContext'
 import axios from 'axios'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import Cookies from 'universal-cookie'
 
 const Login = () => {
-  const { authState, authDispatch } = UseGeneralContext()
+  const { authState, authDispatch, cookies } = UseGeneralContext()
   const { username, password } = authState
 
   const navigate = useNavigate()
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
+    await cookies.set('jwt', 'fake token', {
+      expires: new Date(1698998440950 * 1000),
+    })
+    authDispatch({ type: 'get-token', payload: 'fake token' })
+    navigate('/upload')
+    // try {
+    //   if (username && password) {
+    //     const response = await axios.post('https://example.com/api/login', {
+    //       username,
+    //       password,
+    //     })
 
-    try {
-      if (username && password) {
-        const response = await axios.post('https://example.com/api/login', {
-          username,
-          password,
-        })
-
-        console.log('Login successful:', response.data)
-        navigate('/upload')
-      } else {
-        console.log('input email and password')
-      }
-    } catch (error) {
-      console.error('Login failed:', error)
-    }
+    //     console.log('Login successful:', response.data)
+    //     navigate('/upload')
+    //   } else {
+    //     console.log('input email and password')
+    //   }
+    // } catch (error) {
+    //   console.error('Login failed:', error)
+    // }
   }
   if (!authState.token) {
     return (

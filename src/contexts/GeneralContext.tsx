@@ -16,6 +16,7 @@ type authAction = {
 type Cell = {
   authState: authState
   authDispatch: React.Dispatch<authAction>
+  cookies: any
 }
 
 const GeneralContext = createContext<Cell | null>(null)
@@ -56,11 +57,8 @@ export const GeneralContextProvider = ({
     }
   }, [])
 
-  useEffect(() => {
-    console.log(authState.token)
-  }, [console.log(authState.token)])
   return (
-    <GeneralContext.Provider value={{ authState, authDispatch }}>
+    <GeneralContext.Provider value={{ authState, authDispatch, cookies }}>
       {children}
     </GeneralContext.Provider>
   )
