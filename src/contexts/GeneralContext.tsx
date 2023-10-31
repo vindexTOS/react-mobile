@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import Cookies from 'universal-cookie'
 
@@ -6,6 +7,9 @@ type authState = {
 
   password: string
   token: string
+  userData: any
+  succsess: string
+  error: string
 }
 
 type authAction = {
@@ -32,6 +36,9 @@ export const GeneralContextProvider = ({
     username: '',
     password: '',
     token: '',
+    userData: {},
+    succsess: '',
+    error: '',
   }
 
   const authRedcer = (state: authState, action: authAction) => {
@@ -42,6 +49,13 @@ export const GeneralContextProvider = ({
         return { ...state, password: state.password = action.payload }
       case 'get-token':
         return { ...state, token: state.token = action.payload }
+      case 'user-data':
+        return { ...state, userData: state.userData = action.payload }
+      case 'succsess':
+        return { ...state, succsess: state.succsess = action.payload }
+      case 'error':
+        return { ...state, error: state.error = action.payload }
+
       default:
         return state
     }
@@ -50,11 +64,16 @@ export const GeneralContextProvider = ({
   const [authState, authDispatch] = useReducer(authRedcer, initialauthState)
 
   useEffect(() => {
-    const token = cookies.get('jwt')
-    console.log(token)
-    if (token) {
-      authDispatch({ type: 'get-token', payload: token })
+    const getDecodedInfo = async () => {
+      const token = cookies.get('jwt')
+
+      if (token) {
+        const decoded: any = await jwtDecode(token)
+        authDispatch({ type: 'user-data', payload: decoded })
+      }
     }
+
+    getDecodedInfo()
   }, [])
 
   return (

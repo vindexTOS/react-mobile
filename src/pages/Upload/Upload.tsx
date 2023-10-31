@@ -3,7 +3,7 @@ import React, { useReducer, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 import { UseGeneralContext } from '../../contexts/GeneralContext'
 import { Navigate } from 'react-router-dom'
-
+import SuccsessStatus from '../../components/Status/SuccsessStatus'
 function CameraComponent() {
   const { authState } = UseGeneralContext()
   const initialState = {
@@ -80,6 +80,8 @@ function CameraComponent() {
   if (authState.token) {
     return (
       <div className="container mx-auto p-4">
+        <SuccsessStatus succsess={authState.succsess} />
+        {authState.succsess}
         <h1 className="text-2xl font-bold mb-4">Capture Your Information</h1>
         <h1 className="text-2xl font-bold mb-4">Take a face photo</h1>
         <div className="mb-4">

@@ -3,6 +3,8 @@ import { UseGeneralContext } from '../../contexts/GeneralContext'
 import axios from 'axios'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import Cookies from 'universal-cookie'
+import { jwtDecode } from 'jwt-decode'
+import ErrorStatus from '../../components/Status/ErrorStatus'
 
 const Login = () => {
   const { authState, authDispatch, cookies } = UseGeneralContext()
@@ -11,30 +13,39 @@ const Login = () => {
   const navigate = useNavigate()
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
-    await cookies.set('jwt', 'fake token', {
-      expires: new Date(1698998440950 * 1000),
-    })
-    authDispatch({ type: 'get-token', payload: 'fake token' })
-    navigate('/upload')
-    // try {
-    //   if (username && password) {
-    //     const response = await axios.post('https://example.com/api/login', {
-    //       username,
-    //       password,
-    //     })
 
-    //     console.log('Login successful:', response.data)
-    //     navigate('/upload')
-    //   } else {
-    //     console.log('input email and password')
-    //   }
-    // } catch (error) {
-    //   console.error('Login failed:', error)
-    // }
+    try {
+      if (username && password) {
+        const response = await axios.post('http://45.59.118.55/courier/login', {
+          username,
+          password,
+        })
+
+        const token = response.data
+        const decoded: any = await jwtDecode(token)
+        await cookies.set('jwt', token, {
+          expires: new Date(1699951384 * 1000),
+        })
+        navigate('/upload')
+        authDispatch({ type: 'get-token', payload: token })
+        authDispatch({ type: 'succsess', payload: `Hello,${decoded.username}` })
+        setTimeout(() => {
+          authDispatch({ type: 'succsess', payload: '' })
+        }, 3000)
+      } else {
+        console.log('input email and password')
+      }
+    } catch (error) {
+      authDispatch({ type: 'error', payload: 'password invalide' })
+      setTimeout(() => {
+        authDispatch({ type: 'error', payload: '' })
+      }, 3000)
+    }
   }
   if (!authState.token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <ErrorStatus error={authState.error} />
         <div className="bg-white p-8 rounded shadow-lg max-w-xs w-full">
           <h2 className="text-2xl font-semibold text-center">Login</h2>
           <form className="mt-4">
