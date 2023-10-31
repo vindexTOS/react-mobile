@@ -24,7 +24,7 @@ const Login = () => {
         const token = response.data
         const decoded: any = await jwtDecode(token)
         await cookies.set('jwt', token, {
-          expires: new Date(1699951384 * 1000),
+          expires: new Date(decoded.iat * 1000),
         })
         navigate('/upload')
         authDispatch({ type: 'get-token', payload: token })
